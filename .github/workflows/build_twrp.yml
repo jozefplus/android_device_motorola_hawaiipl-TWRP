@@ -1,0 +1,66 @@
+name: Build TWRP Recovery
+
+on:
+  workflow_dispatch:
+
+env:
+  MANIFEST_URL: "https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git"
+  MANIFEST_BRANCH: "twrp-11"
+  DEVICE_PATH: "device/motorola/hawaiipl"
+  DEVICE_NAME: "hawaiipl"
+  MAKEFILE_NAME: "twrp_hawaiipl"
+  BUILD_TARGET: "bootimage"
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Free Disk Space
+      run: |
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
+        sudo docker image prune -a -f
+
+    - name: Set up Build Environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git-core gnupg flex bison build-essential zip curl zlib1g-dev \
+          gcc-multilib g++-multilib libc6-dev-i386 libncurses5 lib32ncurses5-dev x11proto-core-dev \
+          libx11-dev lib32z1-dev libgl1-mesa-dev libxml2 libxml2-utils xsltproc unzip fontconfig
+
+    - name: Install Repo Tool
+      run: |
+        mkdir -p ~/bin
+        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+        chmod a+x ~/bin/repo
+        sudo ln -sf ~/bin/repo /usr/bin/repo
+
+    - name: Initialize Repo and Sync Source
+      run: |
+        git config --global user.name "jozefplus"
+        git config --global user.email "151835305+jozefplus@users.noreply.github.com"
+        mkdir -p twrp && cd twrp
+        repo init --depth=1 -u $MANIFEST_URL -b $MANIFEST_BRANCH
+        repo sync -c --no-clone-bundle --no-tags -j$(nproc --all)
+
+    - name: Clone Device Tree
+      run: |
+        cd twrp
+        git clone https://github.com/jozefplus/android_device_motorola_hawaiipl-TWRP.git $DEVICE_PATH
+
+    - name: Build TWRP
+      run: |
+        cd twrp
+        source build/envsetup.sh
+        lunch ${MAKEFILE_NAME}-eng || lunch twrp_${DEVICE_NAME}-eng
+        make clean
+        mka $BUILD_TARGET -j$(nproc --all)
+
+    - name: Upload Output Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: TWRP-hawaiipl-bootimage
+        path: |
+          twrp/out/target/product/hawaiipl/boot.img
+          twrp/out/target/product/hawaiipl/*.img
