@@ -1,0 +1,57 @@
+DEVICE_PATH := device/motorola/hawaiipl
+
+# Architecture
+TARGET_ARCH := arm64
+TARGET_ARCH_VARIANT := armv8-a
+TARGET_CPU_ABI := arm64-v8a
+TARGET_CPU_ABI2 :=
+TARGET_CPU_VARIANT := generic
+
+TARGET_2ND_ARCH := arm
+TARGET_2ND_ARCH_VARIANT := armv7-a-neon
+TARGET_2ND_CPU_ABI := armeabi-v7a
+TARGET_2ND_CPU_ABI2 := armeabi
+TARGET_2ND_CPU_VARIANT := generic
+TARGET_BOARD_SUFFIX := _64
+TARGET_USES_64_BIT_BINDER := true
+
+# Platform
+TARGET_BOARD_PLATFORM := mt6765
+
+# Boot Image Header & Addresses (from your magiskboot unpack)
+BOARD_BOOTIMG_HEADER_VERSION := 2
+BOARD_PAGE_SIZE := 2048
+BOARD_KERNEL_BASE := 0x40078000
+BOARD_RAMDISK_OFFSET := 0x11088000
+BOARD_TAGS_OFFSET := 0x07808000
+
+# Kernel & DTB Prebuilts
+BOARD_KERNEL_CMDLINE := bootopt=64S3,32N2,64N2 androidboot.selinux=permissive
+TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
+TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb
+BOARD_INCLUDE_DTB_IN_BOOTIMG := true
+BOARD_MKBOOTIMG_ARGS := --header_version $(BOARD_BOOTIMG_HEADER_VERSION)
+
+# A/B & Recovery as Boot
+AB_OTA_UPDATER := true
+BOARD_USES_RECOVERY_AS_BOOT := true
+TARGET_NO_RECOVERY := true
+
+# Dynamic / Super Partitions
+BOARD_SUPER_PARTITION_GROUPS := main
+BOARD_MAIN_PARTITION_LIST := system vendor product
+BOARD_SUPER_PARTITION_ERROR_LIMIT := false
+
+# TWRP UI & Features
+TW_THEME := portrait_hdpi
+TW_SCREEN_BLANK_ON_BOOT := true
+TW_INPUT_BLACKLIST := "hbtp_vm"
+TW_USE_TOOLBOX := true
+TW_INCLUDE_REPACKTOOLS := true
+TW_NO_REBOOT_BOOTLOADER := true
+TW_HAS_MTP := true
+TW_EXCLUDE_APEX := true
+TW_INCLUDE_CRYPTO := false
+TW_MAX_BRIGHTNESS := 2047
+TW_DEFAULT_BRIGHTNESS := 1024
+TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"

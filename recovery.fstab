@@ -1,0 +1,15 @@
+# Logical dynamic partitions inside super
+system        /system       ext4    ro    wait,logical,first_stage_mount
+vendor        /vendor       ext4    ro    wait,logical,first_stage_mount
+product       /product      ext4    ro    wait,logical,first_stage_mount
+
+# Physical A/B & Critical partitions
+/boot         emmc          /dev/block/by-name/boot         flags=backup=1;flashimg=1;slotselect
+/super        emmc          /dev/block/by-name/super        flags=backup=1;display="Super"
+/metadata     ext4          /dev/block/by-name/metadata     flags=display="Metadata"
+/data         f2fs          /dev/block/by-name/userdata     flags=fileencryption=aes-256-xts:aes-256-cts:v2
+/misc         emmc          /dev/block/by-name/misc         flags=display="Misc"
+
+# External Storage
+/external_sd  vfat          /dev/block/mmcblk1p1 /dev/block/mmcblk1 flags=display="MicroSD";storage;wipeingui;removable
+/usb-otg      vfat          /dev/block/sda1 /dev/block/sda          flags=display="USB-OTG";storage;wipeingui;removable
